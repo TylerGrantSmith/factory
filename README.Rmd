@@ -35,8 +35,8 @@ install.packages("factory")
 Or install the development version from [GitHub](https://github.com/jonthegeek/factory) with:
 
 ```{r dev, eval = FALSE}
-# install.packages("devtools")
-devtools::install_github("r-lib/usethis")
+# install.packages("remotes")
+remotes::install_github("jonthegeek/factory")
 ```
 
 ## Motivation
@@ -63,7 +63,7 @@ power1 <- function(exponent) {
 ```
 
 For many use cases, `power1` works fine.
-For example, we can define a square function by calling power1 with `exponent = 2`.
+For example, we can define a square function by calling `power1` with `exponent = 2`.
 
 ```{r power1-simple-usage}
 square1 <- power1(2)

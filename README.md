@@ -33,8 +33,8 @@ Or install the development version from
 [GitHub](https://github.com/jonthegeek/factory) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("r-lib/usethis")
+# install.packages("remotes")
+remotes::install_github("jonthegeek/factory")
 ```
 
 ## Motivation
@@ -66,7 +66,7 @@ power1 <- function(exponent) {
 ```
 
 For many use cases, `power1` works fine. For example, we can define a
-square function by calling power1 with `exponent = 2`.
+square function by calling `power1` with `exponent = 2`.
 
 ``` r
 square1 <- power1(2)
@@ -195,12 +195,12 @@ square1
 #> function(x) {
 #>     x ^ exponent
 #>   }
-#> <environment: 0x00000000149cf948>
+#> <environment: 0x00000000149dfa40>
 square2
 #> function(x) {
 #>     x ^ exponent
 #>   }
-#> <environment: 0x000000001d11cac8>
+#> <environment: 0x000000001d130908>
 ```
 
 It isn’t clear what these functions will do, since the definitions of
