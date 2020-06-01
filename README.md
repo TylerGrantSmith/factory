@@ -72,8 +72,10 @@ square function by calling power1 with `exponent = 2`.
 square1 <- power1(2)
 square1(2)
 #> [1] 4
+# 2 ^ 2 = 4
 square1(3)
 #> [1] 9
+# 3 ^ 2 = 9
 ```
 
 However, `power1` is fragile. Let’s think about what the definition of
@@ -96,9 +98,11 @@ Until we *use* `my_exponent`, it has a *promise* to get the value of
 ``` r
 square1a(2)
 #> [1] 4
+# 2 ^ 2 = 4
 my_exponent <- 3
 square1a(3)
 #> [1] 9
+# 3 ^ 2 = 9
 ```
 
 The `my_exponent` promise (which was passed in during the definition of
@@ -115,8 +119,10 @@ square1b <- power1(my_exponent)
 my_exponent <- 3
 square1b(2)
 #> [1] 8
+# 2 ^ 3 = 8
 square1b(3)
 #> [1] 27
+# 3 ^ 3 = 27
 ```
 
 What happened? When `square1b` was defined, `my_exponent` was passed in
@@ -144,8 +150,10 @@ square2 <- power2(my_exponent)
 my_exponent <- 3
 square2(2)
 #> [1] 4
+# 2 ^ 2 = 4
 square2(3)
 #> [1] 9
+# 3 ^ 2 = 9
 ```
 
 Why does this work? The `force` function forces the evaluation of its
@@ -168,8 +176,10 @@ square2b <- power2b(my_exponent)
 my_exponent <- 3
 square2b(2)
 #> [1] 4
+# 2 ^ 2 = 4
 square2b(3)
 #> [1] 9
+# 3 ^ 2 = 9
 ```
 
 Since the value of `exponent` is needed for the message, the promise is
@@ -185,12 +195,12 @@ square1
 #> function(x) {
 #>     x ^ exponent
 #>   }
-#> <environment: 0x00000000157d96a0>
+#> <environment: 0x00000000149cf948>
 square2
 #> function(x) {
 #>     x ^ exponent
 #>   }
-#> <environment: 0x00000000143b72f8>
+#> <environment: 0x000000001d11cac8>
 ```
 
 It isn’t clear what these functions will do, since the definitions of
@@ -254,6 +264,7 @@ square4 <- power4(my_exponent)
 my_exponent <- 3
 square4(2)
 #> [1] 4
+# 2 ^ 2 = 4
 ```
 
 The resulting function makes sense, as with `power3`.

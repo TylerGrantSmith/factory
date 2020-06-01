@@ -68,7 +68,9 @@ For example, we can define a square function by calling power1 with `exponent = 
 ```{r power1-simple-usage}
 square1 <- power1(2)
 square1(2)
+# 2 ^ 2 = 4
 square1(3)
+# 3 ^ 2 = 9
 ```
 
 However, `power1` is fragile. 
@@ -88,8 +90,10 @@ If we call `square1a` right away, it works as expected.
 
 ```{r power1-fragile-seems-ok}
 square1a(2)
+# 2 ^ 2 = 4
 my_exponent <- 3
 square1a(3)
+# 3 ^ 2 = 9
 ```
 
 The `my_exponent` promise (which was passed in during the definition of `square1a`) resolves to `2` the first time it is needed (when `square1a` is first called). 
@@ -102,7 +106,9 @@ my_exponent <- 2
 square1b <- power1(my_exponent)
 my_exponent <- 3
 square1b(2)
+# 2 ^ 3 = 8
 square1b(3)
+# 3 ^ 3 = 27
 ```
 
 What happened? 
@@ -127,7 +133,9 @@ my_exponent <- 2
 square2 <- power2(my_exponent)
 my_exponent <- 3
 square2(2)
+# 2 ^ 2 = 4
 square2(3)
+# 3 ^ 2 = 9
 ```
 
 Why does this work?
@@ -148,7 +156,9 @@ my_exponent <- 2
 square2b <- power2b(my_exponent)
 my_exponent <- 3
 square2b(2)
+# 2 ^ 2 = 4
 square2b(3)
+# 3 ^ 2 = 9
 ```
 
 Since the value of `exponent` is needed for the message, the promise is evaluated when the factory is invoked, and the resulting function is stable.
@@ -208,6 +218,7 @@ my_exponent <- 2
 square4 <- power4(my_exponent)
 my_exponent <- 3
 square4(2)
+# 2 ^ 2 = 4
 ```
 
 The resulting function makes sense, as with `power3`.
