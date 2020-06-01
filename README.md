@@ -78,18 +78,20 @@ square1(3)
 
 However, `power1` is fragile. Let’s think about what the definition of
 power1 *means.* The function returned by `power1` raises its argument to
-whatever `exponent` is defined as. Let’s see what happens if we use a
-variable in the global environment to define our `square` function.
+whatever the `exponent` variable is defined as. Let’s see what happens
+if we use a variable in the global environment to define our `square`
+function.
 
 ``` r
 my_exponent <- 2
 square1a <- power1(my_exponent)
 ```
 
-Due to R’s lazy evaluation, when we call `power1`, `my_exponent` doesn’t
-actually have the value of `2` yet. Until we *use* `my_exponent`, it has
-a *promise* to get the value of `2`. If we call `square1a` right away,
-it works as expected.
+Due to R’s lazy evaluation, when we call `power1`, the `exponent`
+variable gets a promise to take on the value of the `my_exponent`
+variable. But `my_exponent` doesn’t actually have the value of `2` yet.
+Until we *use* `my_exponent`, it has a *promise* to get the value of
+`2`. If we call `square1a` right away, it works as expected.
 
 ``` r
 square1a(2)
@@ -99,8 +101,8 @@ square1a(3)
 #> [1] 9
 ```
 
-The `my_exponent` promise that was passed in during the definition of
-`square1a1` resolves to `2` the first time it is needed (when `square1a`
+The `my_exponent` promise (which was passed in during the definition of
+`square1a`) resolves to `2` the first time it is needed (when `square1a`
 is first called). After that initial call, that is the value used in
 `square1a` forever.
 
@@ -147,10 +149,10 @@ square2(3)
 ```
 
 Why does this work? The `force` function forces the evaluation of its
-argument. We don’t really need to use `force`. Anything that forces
-evaluation would work, but `force` makes it obvious why we’re doing it.
-For example, we could produce the same result by `message`ing within the
-factory.
+argument. We don’t really need to use `force`, per se. Any function that
+forces evaluation would work, but `force` makes it obvious why we’re
+doing it. For example, we could produce the same result by `message`ing
+within the factory.
 
 ``` r
 power2b <- function(exponent) {
@@ -170,6 +172,10 @@ square2b(3)
 #> [1] 9
 ```
 
+Since the value of `exponent` is needed for the message, the promise is
+evaluated when the factory is invoked, and the resulting function is
+stable.
+
 While such factories are more stable, it’s easy to miss a `force`. And,
 in both of these cases, the resulting functions are difficult to
 understand as a user.
@@ -179,12 +185,12 @@ square1
 #> function(x) {
 #>     x ^ exponent
 #>   }
-#> <environment: 0x00000000157de2e0>
+#> <environment: 0x00000000157d96a0>
 square2
 #> function(x) {
 #>     x ^ exponent
 #>   }
-#> <environment: 0x00000000143b6220>
+#> <environment: 0x00000000143b72f8>
 ```
 
 It isn’t clear what these functions will do, since the definitions of
