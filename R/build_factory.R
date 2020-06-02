@@ -33,12 +33,12 @@ build_factory <- function(
   dots <- rlang::enquos(...)
   dots_names <- names(rlang::quos_auto_name(dots))
 
-  dots <-
+  args <-
     as.list(dots) %>%
     purrr::modify_if(~(rlang::is_quosure(.) && rlang::quo_is_null(.)), ~rlang::list2(NULL)) %>%
     purrr::modify_if(~(rlang::is_quosure(.) && rlang::quo_is_missing(.)), ~rlang::list2(rlang::missing_arg())) %>%
-    purrr::modify_if(dots_names == "", ~rlang::list2(rlang::missing_arg())) %>%
-    purrr::modify_if(rlang::is_quosure, ~rlang::list2(rlang::eval_tidy)) %>%
+    purrr::modify_if(names(dots) == "", ~rlang::list2(rlang::missing_arg())) %>%
+    purrr::modify_if(rlang::is_quosure, ~rlang::list2(rlang::eval_tidy(.))) %>%
     purrr::flatten() %>%
     purrr::set_names(dots_names)
 
@@ -52,7 +52,7 @@ build_factory <- function(
   )
 
   rlang::new_function(
-    args = dots,
+    args = args,
     body = rlang::expr({
       rlang::new_function(
         args = !!formals(fun),
