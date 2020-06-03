@@ -4,7 +4,13 @@
 \alias{build_factory}
 \title{Easily Build Function Factories}
 \usage{
-build_factory(fun, ..., .pass_dots = FALSE, .internal_variables = NULL)
+build_factory(
+  fun,
+  ...,
+  .env = rlang::caller_env(),
+  .pass_dots = FALSE,
+  .internal_variables = NULL
+)
 }
 \arguments{
 \item{fun}{A function to turn into a factory.}
