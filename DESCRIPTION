@@ -35,5 +35,8 @@ Suggests:
     roxygen2,
     knitr,
     rmarkdown,
-    ggplot2
+    ggplot2,
+    grDevices,
+    scales,
+    bench
 VignetteBuilder: knitr
