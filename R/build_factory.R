@@ -45,12 +45,9 @@
 #' base_bins("Sturges")
 build_factory <- function(fun,
                           ...,
+                          .env = rlang::caller_env(),
                           .pass_dots = FALSE,
                           .internal_variables = NULL) {
-  if (!...length()) {
-    stop("You must provide at least one argument to your factory.")
-  }
-
   dots <- rlang::enquos(...)
   dots_names <- names(rlang::quos_auto_name(dots))
   args <- as.list(dots) %>%
@@ -103,18 +100,20 @@ build_factory <- function(fun,
   )
 
   child_fn <- rlang::expr({
-    rlang::new_function(
+    new_fn <- rlang::new_function(
       args = !!formals(fun),
       body = rlang::expr(!!body(fun)),
-      env = rlang::caller_env()
+      env = !!.env
     )
+
+    return(new_fn)
   })
 
   if (.pass_dots) {
     args <- rlang::pairlist2(
       !!!args,
       "..." =
-      )
+    )
     old_fun <- fun
 
     # If they want to pass ... to the child, we *add* !!!dots. Else we replace
@@ -139,11 +138,13 @@ build_factory <- function(fun,
 
     # Update child_fun.
     child_fn <- rlang::expr({
-      rlang::new_function(
+      new_fn <- rlang::new_function(
         args = !!formals(fun),
         body = rlang::expr(!!body(fun)),
-        env = rlang::caller_env()
+        env = !!.env
       )
+
+      return(new_fn)
     }) %>%
       body_insert(
         insertion = quote(dots <- list(...))
@@ -168,13 +169,27 @@ build_factory <- function(fun,
     )
   }
 
-  return(
-    rlang::new_function(
-      args = args,
-      body = child_fn,
-      env = rlang::caller_env()
-    )
+  if (!identical(.env, rlang::caller_env())) {
+    child_fn <- child_fn %>%
+      body_insert(
+        insertion = quote(class(new_fn) <- c("stateful_function", class(new_fn))),
+        before = quote(return(new_fn))
+      )
+  }
+
+  rlang::new_function(
+    args = args,
+    body = child_fn,
+    env = rlang::caller_env()
   )
+}
+
+#' @export
+print.stateful_function <- function(x, useSource = TRUE, ... ) {
+  default <- paste0(capture.output(print.function(x, useSource, ...)), collapse = "\n")
+  state_info <- paste0("\nFunction State: \n", paste0("  ", capture.output(eapply(rlang::fn_env(x), identity)), collapse = "\n"))
+  cat(default)
+  cat(state_info)
 }
 
 # build_factory.list <- function(fun,
