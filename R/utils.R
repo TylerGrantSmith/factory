@@ -62,11 +62,12 @@ body_insert <- function(fn_body, insertion, before = NULL) {
     # `before`. Which feels like it should be recursive. If I don't find
     # `before` I return fn_body unaltered.
     if (length(fn_body) > 1) {
-      if (any(as.list(fn_body) == before)) {
+      matches <- purrr::map_lgl(as.list(fn_body), ~identical(., before))
+      if (any(matches)) {
         # Do the insertion. Things before `before` are unchanged, things after
         # `before` should move 1 higher in the list, and then the spot occupied
         # by before should become insertion.
-        target_location <- which(as.list(fn_body) == before)
+        target_location <- which(matches)
         fn_body <- .body_insert_location(fn_body, insertion, target_location)
       } else {
         # Check each element of fn_body.

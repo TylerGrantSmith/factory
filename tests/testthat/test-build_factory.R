@@ -200,3 +200,23 @@ test_that("Can build factories that branch into functions by variable.", {
   #   dpi = 96
   # )
 })
+
+
+test_that("Factories can have state", {
+  new_counter <- build_factory(
+    fun = function() {
+      i <<- i + 1
+      i
+      },
+    .state = list(i = 0))
+
+  counter_one <- new_counter()
+  expect_s3_class(counter_one, "stateful_function")
+  expect_identical(environment(counter_one)$i, 0)
+  counter_one()
+  expect_identical(environment(counter_one)$i, 1)
+
+  # make sure that the state does not get shared between different factory calls
+  counter_two <- new_counter()
+  expect_identical(environment(counter_two)$i, 0)
+})

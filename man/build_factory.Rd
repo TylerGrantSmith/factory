@@ -7,9 +7,9 @@
 build_factory(
   fun,
   ...,
-  .env = rlang::caller_env(),
   .pass_dots = FALSE,
-  .internal_variables = NULL
+  .internal_variables = NULL,
+  .state = NULL
 )
 }
 \arguments{
@@ -26,6 +26,9 @@ work, the manufactured function *must* also include dots, and the input
 
 \item{.internal_variables}{A named list of additional code to run to create
 additional variables used by the factory.}
+
+\item{.state}{A named list of variables used as function state, to be
+attached to the function's environment.}
 }
 \value{
 A function factory.

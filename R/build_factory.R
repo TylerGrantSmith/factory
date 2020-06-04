@@ -10,7 +10,8 @@
 #'   \code{fun} must indicate where those dots are used.
 #' @param .internal_variables A named list of additional code to run to create
 #'   additional variables used by the factory.
-#'
+#' @param .state A named list of variables used as function state, to be
+#'   attached to the function's environment.
 #' @return A function factory.
 #' @export
 #'
@@ -45,11 +46,15 @@
 #' base_bins("Sturges")
 build_factory <- function(fun,
                           ...,
-                          .env = rlang::caller_env(),
                           .pass_dots = FALSE,
-                          .internal_variables = NULL) {
+                          .internal_variables = NULL,
+                          .state = NULL) {
   dots <- rlang::enquos(...)
   dots_names <- names(rlang::quos_auto_name(dots))
+
+  .state <- rlang::enexpr(.state)
+
+
   args <- as.list(dots) %>%
     purrr::modify_if(
       ~ (rlang::is_quosure(.) && rlang::quo_is_null(.)),
@@ -103,8 +108,12 @@ build_factory <- function(fun,
     new_fn <- rlang::new_function(
       args = !!formals(fun),
       body = rlang::expr(!!body(fun)),
-      env = !!.env
-    )
+      env = !!(if(length(.state)) {
+          rlang::expr(rlang::child_env(.parent = rlang::caller_env(), !!!rlang::call_args(.state)))
+        } else {
+          rlang::expr(rlang::caller_env())
+        }
+      ))
 
     return(new_fn)
   })
@@ -141,8 +150,12 @@ build_factory <- function(fun,
       new_fn <- rlang::new_function(
         args = !!formals(fun),
         body = rlang::expr(!!body(fun)),
-        env = !!.env
-      )
+        env = !!(if(length(.state)) {
+          rlang::expr(rlang::child_env(.parent = rlang::caller_env(), !!!rlang::call_args(.state)))
+        } else {
+          rlang::expr(rlang::caller_env())
+        }
+        ))
 
       return(new_fn)
     }) %>%
@@ -169,7 +182,7 @@ build_factory <- function(fun,
     )
   }
 
-  if (!identical(.env, rlang::caller_env())) {
+  if (length(.state)) {
     child_fn <- child_fn %>%
       body_insert(
         insertion = quote(class(new_fn) <- c("stateful_function", class(new_fn))),
