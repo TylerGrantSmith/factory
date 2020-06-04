@@ -10,8 +10,8 @@
 #'   \code{fun} must indicate where those dots are used.
 #' @param .internal_variables A named list of additional code to run to create
 #'   additional variables used by the factory.
-#' @param .state A named list of variables used as function state, to be
-#'   attached to the function's environment.
+#' @param .state A named list of variables used to maintain function state, to
+#'   be attached to the function's environment.
 #' @return A function factory.
 #' @export
 #'
@@ -54,7 +54,6 @@ build_factory <- function(fun,
 
   .state <- rlang::enexpr(.state)
 
-
   args <- as.list(dots) %>%
     purrr::modify_if(
       ~ (rlang::is_quosure(.) && rlang::quo_is_null(.)),
@@ -94,26 +93,31 @@ build_factory <- function(fun,
   # return(multiple_funs)
 
   # We also need to update the function body.
-  body(fun) <- purrr::reduce(
-    dots_names,
-    ~ body_replace(
-      fn_body = ..1,
-      target = ..2,
-      replacement = rlang::call2("!!", rlang::sym(..2))
-    ),
-    .init = body(fun)
-  )
+  body(fun) <-
+    dots_names %>%
+    purrr::map(rlang::sym) %>%
+    purrr::reduce(
+      ~ body_replace(
+        fn_body = ..1,
+        target = ..2,
+        replacement = substitute(!!..2, list(..2 = ..2))
+      ),
+      .init = body(fun)
+    )
 
   child_fn <- rlang::expr({
     new_fn <- rlang::new_function(
       args = !!formals(fun),
       body = rlang::expr(!!body(fun)),
-      env = !!(if(length(.state)) {
-          rlang::expr(rlang::child_env(.parent = rlang::caller_env(), !!!rlang::call_args(.state)))
-        } else {
-          rlang::expr(rlang::caller_env())
-        }
-      ))
+      env = !!(if (length(.state)) {
+        rlang::expr(rlang::child_env(
+          .parent = rlang::caller_env(),
+          !!!rlang::call_args(.state)
+        ))
+      } else {
+        rlang::expr(rlang::caller_env())
+      })
+    )
 
     return(new_fn)
   })
@@ -122,7 +126,7 @@ build_factory <- function(fun,
     args <- rlang::pairlist2(
       !!!args,
       "..." =
-    )
+      )
     old_fun <- fun
 
     # If they want to pass ... to the child, we *add* !!!dots. Else we replace
@@ -150,12 +154,15 @@ build_factory <- function(fun,
       new_fn <- rlang::new_function(
         args = !!formals(fun),
         body = rlang::expr(!!body(fun)),
-        env = !!(if(length(.state)) {
-          rlang::expr(rlang::child_env(.parent = rlang::caller_env(), !!!rlang::call_args(.state)))
+        env = !!(if (length(.state)) {
+          rlang::expr(rlang::child_env(
+            .parent = rlang::caller_env(),
+            !!!rlang::call_args(.state)
+          ))
         } else {
           rlang::expr(rlang::caller_env())
-        }
-        ))
+        })
+      )
 
       return(new_fn)
     }) %>%
@@ -185,7 +192,8 @@ build_factory <- function(fun,
   if (length(.state)) {
     child_fn <- child_fn %>%
       body_insert(
-        insertion = quote(class(new_fn) <- c("stateful_function", class(new_fn))),
+        insertion =
+          quote(class(new_fn) <- c("stateful_function", class(new_fn))),
         before = quote(return(new_fn))
       )
   }
@@ -198,11 +206,15 @@ build_factory <- function(fun,
 }
 
 #' @export
-print.stateful_function <- function(x, useSource = TRUE, ... ) {
-  default <- paste0(capture.output(print.function(x, useSource, ...)), collapse = "\n")
-  state_info <- paste0("\nFunction State: \n", paste0("  ", capture.output(eapply(rlang::fn_env(x), identity)), collapse = "\n"))
-  cat(default)
-  cat(state_info)
+print.stateful_function <- function(x, useSource = TRUE, ...) {
+  print.function(x, useSource, ...)
+  cat(stateful_function_output(x))
+}
+
+stateful_function_output <- function(x) {
+  utils::capture.output(eapply(rlang::fn_env(x), identity)) %>%
+    paste0("  ", rlang::.data, collapse = "\n") %>%
+    paste0("\nFunction State: \n", rlang::.data)
 }
 
 # build_factory.list <- function(fun,

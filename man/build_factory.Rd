@@ -27,8 +27,8 @@ work, the manufactured function *must* also include dots, and the input
 \item{.internal_variables}{A named list of additional code to run to create
 additional variables used by the factory.}
 
-\item{.state}{A named list of variables used as function state, to be
-attached to the function's environment.}
+\item{.state}{A named list of variables used to maintain function state, to
+be attached to the function's environment.}
 }
 \value{
 A function factory.

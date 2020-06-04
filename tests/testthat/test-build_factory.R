@@ -13,15 +13,6 @@ test_that("factory basics work", {
 })
 
 test_that("factory errors", {
-  expect_error(
-    build_factory(
-      fun = function(x) {
-        x^exponent
-      }
-    ),
-    "You must provide at least one argument to your factory"
-  )
-
   power <- build_factory(
     fun = function(x) {
       x^exponent
@@ -207,8 +198,9 @@ test_that("Factories can have state", {
     fun = function() {
       i <<- i + 1
       i
-      },
-    .state = list(i = 0))
+    },
+    .state = list(i = 0)
+  )
 
   counter_one <- new_counter()
   expect_s3_class(counter_one, "stateful_function")
