@@ -52,8 +52,6 @@ build_factory <- function(fun,
   dots <- rlang::enquos(...)
   dots_names <- names(rlang::quos_auto_name(dots))
 
-  .state <- rlang::enexpr(.state)
-
   args <- as.list(dots) %>%
     purrr::modify_if(
       ~ (rlang::is_quosure(.) && rlang::quo_is_null(.)),
@@ -110,10 +108,7 @@ build_factory <- function(fun,
       args = !!formals(fun),
       body = rlang::expr(!!body(fun)),
       env = !!(if (length(.state)) {
-        rlang::expr(rlang::child_env(
-          .parent = rlang::caller_env(),
-          !!!rlang::call_args(.state)
-        ))
+        rlang::expr(rlang::child_env(.parent = rlang::caller_env(), !!!.state))
       } else {
         rlang::expr(rlang::caller_env())
       })

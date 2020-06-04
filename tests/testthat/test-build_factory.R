@@ -199,7 +199,7 @@ test_that("Factories can have state", {
       i <<- i + 1
       i
     },
-    .state = list(i = 0)
+    .state = list(i = i)
   )
 
   counter_one <- new_counter()
