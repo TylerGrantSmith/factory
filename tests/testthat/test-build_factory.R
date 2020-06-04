@@ -199,7 +199,7 @@ test_that("Factories can have state", {
       i <<- i + 1
       i
     },
-    .state = list(i = i)
+    .state = list(i = 0)
   )
 
   counter_one <- new_counter()
@@ -211,4 +211,17 @@ test_that("Factories can have state", {
   # make sure that the state does not get shared between different factory calls
   counter_two <- new_counter()
   expect_identical(environment(counter_two)$i, 0)
+
+  # state should be evaluated, not quoted
+  i <- -1
+  new_counter <- build_factory(
+    fun = function() {
+      i <<- i + 1
+      i
+    },
+    .state = list(i = i)
+  )
+
+  counter_three <- new_counter()
+  expect_identical(environment(counter_three)$i, -1)
 })

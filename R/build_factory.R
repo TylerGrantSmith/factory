@@ -208,8 +208,8 @@ print.stateful_function <- function(x, useSource = TRUE, ...) {
 
 stateful_function_output <- function(x) {
   utils::capture.output(eapply(rlang::fn_env(x), identity)) %>%
-    paste0("  ", rlang::.data, collapse = "\n") %>%
-    paste0("\nFunction State: \n", rlang::.data)
+    paste0("  ", ., collapse = "\n") %>%
+    paste0("\nFunction State: \n", .)
 }
 
 # build_factory.list <- function(fun,
